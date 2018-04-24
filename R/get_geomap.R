@@ -1,11 +1,22 @@
-pacman::p_load("ggmap","dplyr","kormaps2014","sp","maptools")
+pacman::p_load("ggmap","dplyr","kormaps2014","sp","maptools","rgdal")
 register_google(key = "your API key from https://developers.google.com/maps/documentation/geocoding/get-api-key")
 
 # sph file read
-shape <- readOGR(dsn = "sig_shp_all")
-shape <- read_sf(dsn = ".", layer = "sig_shp_all")
-shape <- shapefile("sig_shp_all")
-shape <- readShapePoly("sig_shp.shp")
+shape <- readOGR(dsn = path.expand("/Users/youngjunna/Github/diffusion_model/R"),layer="sig_shp")
+shape <- readOGR(dsn = path.expand("sig_shp.shp"), 
+                 layer = "sig_shp")
+library(raster)
+shp <- shapefile("/Users/youngjunna/Github/diffusion_model/R/sig_shp_all.shp")
+
+library(sf)
+shp <- st_read(system.file("/Users/youngjunna/Github/diffusion_model/R/sig_shp_all.shp", package="sf"))
+
+# shape <- read_sf(dsn = ".", layer = "sig_shp_all")
+# shape <- shapefile("sig_shp_all")
+shape <- readShapePoly("/Users/youngjunna/Github/diffusion_model/R/sig_shp")
+
+file.choose()
+
 
 # farm data ####
 farm <- read.csv("farmdata.txt",stringsAsFactors = FALSE,fileEncoding = "EUC-KR")
