@@ -1,4 +1,4 @@
-pacman::p_load("ggmap","dplyr","ggplot2","maps")
+pacman::p_load("ggmap","dplyr","ggplot2","maps","kormaps2014")
 farm <- read.csv("geomap.txt",stringsAsFactors = FALSE,fileEncoding = "EUC-KR")
 
 korea <- enc2utf8("South Korea") %>%
@@ -8,8 +8,21 @@ korea <- enc2utf8("South Korea") %>%
   ggmap()
 
 # 시각화
+theme_set(theme_gray(base_family="NanumGothic"))
+
+ggplot(korpop3,aes(map_id=code,fill=주택_계_호))+
+  geom_map(map=kormap3,colour="black",size=0.1)+
+  expand_limits(x=kormap3$long,y=kormap3$lat)+
+  scale_fill_gradientn(colours=c('white','orange','red'))+
+  ggtitle("2015년도 시도별 인구분포도")+
+  coord_map()
+
+map1 <- korpop1
+map <- korpop2
+
 korea + stat_density_2d(farm,aes(lon,lat,fill=..area..,alpha=..area..),geom="raster",size=2,bins=30)
 
+ggplot(farm,aes(lon,lat))+geom_raster(aes(fill=area),hjust=0.5,vjust=0.5,interpolate=FALSE)
 
 ggplot(farm, aes(lon,lat,group=group,fill=area)) + geom_polygon(colour="black") + coord_map("d")
 

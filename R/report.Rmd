@@ -1,0 +1,13 @@
+```{r}
+pacman::p_load("tidyverse","kormaps2014","DT")
+
+farm <- read.csv("farmdata.txt",stringsAsFactors = FALSE,fileEncoding = "EUC-KR")
+farm <- filter(farm, 영업상태=="정상")
+farm <- filter(farm, 축종=="한우" | 축종=="젖소" | 축종=="육우")
+result <- group_by(farm,시군구) %>% summarise(area=sum(규모))
+```
+
+```{r}
+datatable(result)
+```
+
