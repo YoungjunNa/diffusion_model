@@ -16,8 +16,8 @@ ruminant <- filter(animal, 축종명=="한우"|축종명=="젖소"|축종명=="�
 result <- group_by(ruminant,시군) %>% summarise(animal=sum(규모))
 # result <- group_by(animal, 시군) %>% summarise(animal=sum(규모))
 
-result$output <- NA
-result$output <- ifelse(ruminant$축종명=="한우",ruminant$규모*manure_out$hanwoo$output)
+# result$output <- NA
+# result$output <- ifelse(ruminant$축종명=="한우",ruminant$규모*manure_out$hanwoo$output)
 
 
 map2 <- korpop2
