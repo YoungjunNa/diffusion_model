@@ -31,6 +31,32 @@ merge <- merge(map2,result,by="시군",all=TRUE)
 merge$output[is.na(merge$output)] <- 0
 
 
+manure2 <- read.csv("manure2.txt")
+manure2 <- filter(manure2,축종=="한육우"|축종=="젖소")
+result2 <- manure2 %>% group_by(시군) %>% summarise(treated=sum(발생량))
+
+merge <- merge(merge,result2,by="시군",all=TRUE)
+merge$treated[is.na(merge$treated)] <- 0
+
+#merge
+merge <- merge[c("시군","code","output","treated")]
+merge$unit <- "ton/year"
+merge$diff <- merge$output-merge$treated
+
+
+
+#write.csv
+write.csv(merge,"geomap.txt",row.names = FALSE)
+
+
+
+
+
+
+
+
+
+
 # # 읍면동 기준
 # animal <- read.csv("animal-2016.txt",stringsAsFactors = FALSE)
 # ruminant <- filter(animal, 축종명=="한우"|축종명=="젖소"|축종명=="육우")
@@ -44,15 +70,15 @@ merge$output[is.na(merge$output)] <- 0
 # is.na(merge$animal) <- 0
 
 # 가축분뇨 처리
-manure <- read.csv("manure.csv",fileEncoding = "EUC-KR")
-manure <- group_by(manure,행정.시군코드명) %>% summarise(manure=sum(가축원뇨수거.원뇨수거.톤.일.))
-# manure <- group_by(manure,행정.시군코드명) %>% summarise(manure=sum(가축원뇨수거.수거물량.통.))
-names(manure)[1] <- "시군"
-
-map2 <- korpop2
-names(map2)[2] <- "시군"
-map2$시군 <- as.character(map2$시군)
-map2$시군 <- gsub(" ","",map2$시군)
+# manure <- read.csv("manure.csv",fileEncoding = "EUC-KR")
+# manure <- group_by(manure,행정.시군코드명) %>% summarise(manure=sum(가축원뇨수거.원뇨수거.톤.일.))
+# # manure <- group_by(manure,행정.시군코드명) %>% summarise(manure=sum(가축원뇨수거.수거물량.통.))
+# names(manure)[1] <- "시군"
+# 
+# map2 <- korpop2
+# names(map2)[2] <- "시군"
+# map2$시군 <- as.character(map2$시군)
+# map2$시군 <- gsub(" ","",map2$시군)
 
 # merge <- merge(map2,manure,by="시군",all=TRUE)
 
@@ -60,9 +86,13 @@ map2$시군 <- gsub(" ","",map2$시군)
 # merge$manure[merge$시군=="함안군"] <- 0
 # merge$manure[merge$시군=="사천시"] <- 0
 
-merge <- merge(merge,manure,by="시군",all=TRUE)
-merge$manure[is.na(merge$manure)] <- 0
-
-# write.csv
-merge <- merge[c("시군","code","output","manure")]
-write.csv(merge,"geomap.txt",row.names = FALSE)
+# manure2 <- readxl::read_excel("manure2.xlsx")
+# 
+# for(i in seq(1,nrow(manure2),5)){
+#   manure2$시군[i+1] <- manure2$시군[i]
+#   manure2$시군[i+2] <- manure2$시군[i]
+#   manure2$시군[i+3] <- manure2$시군[i]
+#   manure2$시군[i+4] <- manure2$시군[i]
+# }
+# 
+# write.csv(manure2,"manure2.txt",row.names = FALSE)

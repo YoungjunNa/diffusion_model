@@ -1,0 +1,127 @@
+---
+title: '고상가축분뇨 확산모델'
+author: "Konkuk University"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: column
+    social: menu
+    #source_code: embed
+---
+
+```{r setup, include=FALSE}
+options(scipen=100)
+
+# library & data ####
+pacman::p_load("kormaps2014","tidyverse","plotly","DT","flexdashboard","knitr")
+
+farm <- read.csv("geomap.txt",stringsAsFactors = FALSE)
+theme_set(theme_gray(base_family="NanumGothic"))
+
+# 가축분뇨 배출원단위(kg/두/일)
+hanwoo <- data.frame(bw=350,feces=8,urine=5.7,total=13.7,output=13.7)
+holstein <- data.frame(bw=450,feces=19.2,urine=10.9,total=30.1,output=37.7)
+swine <- data.frame(bw=60,feces=0.87,urine=1.74,total=2.49,output=5.1)
+layer <- data.frame(bw=1.7,feces=0.1247,urine=NA,total=0.1247,output=0.1247)
+broiler <- data.frame(bw=1.3,feces=0.0855,urine=NA,total=0.0855,output=0.0855)
+
+manure_out <- list(hanwoo=hanwoo,holstein=holstein,swine=swine,layer=layer,broiler=broiler)
+
+# 시군기준
+animal <- read.csv("animal-2016.txt",stringsAsFactors = FALSE)
+ruminant <- filter(animal, 축종명=="한우"|축종명=="젖소"|축종명=="육우")
+ruminant$output <- NA
+ruminant$output <- ifelse(ruminant$축종명=="한우"|ruminant$축종명=="육우",ruminant$규모*manure_out$hanwoo$output/1000*365,ruminant$규모*manure_out$holstein$output/1000*365)
+result <- group_by(ruminant,시군) %>% summarise(output=sum(output))
+
+manure2 <- read.csv("manure2.txt")
+manure2 <- filter(manure2,축종=="한육우"|축종=="젖소")
+result2 <- manure2 %>% group_by(시군) %>% summarise(treated=sum(발생량))
+
+```
+
+고상가축분뇨발생량
+=======================================================================
+
+Column 
+-----------------------------------------------------------------------
+### 발생량지도  
+```{r}
+ggplot(farm,aes(map_id=code,fill=output))+
+  geom_map(map=kormap2,colour="black",size=0.1)+
+  expand_limits(x=kormap2$long,y=kormap2$lat)+
+  scale_fill_gradientn(colours=c('white','orange','red'))+
+  ggtitle("2016 고상가축분뇨 발생량")+
+  coord_map()
+```
+
+Column 
+-----------------------------------------------------------------------
+### 시군별고상가축분뇨발생량(톤/연)  
+```{r}
+
+ruminant %>% datatable(options = list(
+  columnDefs = list(list(className = 'dt-center', targets = 5)),
+  pageLength = 25,
+  lengthMenu = c(10, 25, 50, 100)
+))
+
+```
+
+고상가축분뇨처리량
+=======================================================================
+
+Column 
+-----------------------------------------------------------------------
+### 처리량지도  
+```{r}
+ggplot(farm,aes(map_id=code,fill=treated))+
+  geom_map(map=kormap2,colour="black",size=0.1)+
+  expand_limits(x=kormap2$long,y=kormap2$lat)+
+  scale_fill_gradientn(colours=c('white','blue'))+
+  ggtitle("2016 고상가축분뇨 처리량")+
+  coord_map()
+```
+
+Column 
+-----------------------------------------------------------------------
+### 시군별고상가축분뇨처리량(톤/연)  
+```{r}
+
+manure2 %>% datatable(options = list(
+  columnDefs = list(list(className = 'dt-center', targets = 5)),
+  pageLength = 25,
+  lengthMenu = c(10, 25, 50, 100)
+))
+
+```
+
+발생-처리
+=======================================================================
+
+Column 
+-----------------------------------------------------------------------
+### 발생-처리  
+```{r}
+ggplot(farm,aes(map_id=code,fill=diff))+
+  geom_map(map=kormap2,colour="black",size=0.1)+
+  expand_limits(x=kormap2$long,y=kormap2$lat)+
+  scale_fill_gradientn(colours=c('blue','white','red'))+
+  ggtitle("2016 고상가축분뇨 발생량-처리량")+
+  coord_map()
+```
+
+Column 
+-----------------------------------------------------------------------
+### 발생량-처리량(톤/연)  
+```{r}
+
+farm$output <- farm$output %>% round(0)
+farm$diff <- farm$diff %>% round(0)
+
+farm %>% datatable(options = list(
+  columnDefs = list(list(className = 'dt-center', targets = 5)),
+  pageLength = 25,
+  lengthMenu = c(10, 25, 50, 100)
+))
+
+```
