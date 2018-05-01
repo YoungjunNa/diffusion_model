@@ -19,6 +19,15 @@ a <- merge[12:17]
 a[is.na(a)] <- 0
 merge <- cbind(merge[1:10],a)
 
+# 분뇨 발생량 ####
+merge <- mutate(merge, 한육우.분뇨=(한우.두수+육우.두수)*13.7*365/1000)
+merge <- mutate(merge, 젖소.분뇨=젖소.두수*37.7*365/1000)
+merge <- mutate(merge, 돼지.분뇨=돼지.두수*5.1*365/1000)
+merge <- mutate(merge, 육계.분뇨=육계.두수*0.0855*365/1000)
+merge <- mutate(merge, 산란계.분뇨=산란계.두수*0.1247*365/1000)
+merge <- mutate(merge, 고상.분뇨=한육우.분뇨+젖소.분뇨+육계.분뇨+산란계.분뇨)
+merge <- mutate(merge, 합계.분뇨=한육우.분뇨+젖소.분뇨+돼지.분뇨+육계.분뇨+산란계.분뇨)
+
 # 분뇨 처리량 ####
 manure2 <- read.csv("manure2.txt")
 manure2 <- dcast(manure2, 시군~축종, value.var="발생량",sum)
@@ -28,5 +37,9 @@ merge <- arrange(merge, group, order)
 a <- merge[-c(1:16)]
 a[is.na(a)] <- 0
 merge <- cbind(merge[1:16],a)
+
+# 발생-처리 ####
+merge <- mutate(merge, 고상.합계.차이=고상.분뇨-젖소.처리-한육우.처리)
+merge <- mutate(merge, 합계.차이=합계.분뇨-합계.처리)
 
 write.csv(merge,"merge.txt",row.names=FALSE)
