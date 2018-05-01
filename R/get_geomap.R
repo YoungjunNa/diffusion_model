@@ -1,4 +1,5 @@
 pacman::p_load("dplyr","kormaps2014","reshape2")
+simple_join <- read.csv("simple.txt")
 
 # 가축분뇨 배출원단위(kg/두/일) ####
 hanwoo <- data.frame(bw=350,feces=8,urine=5.7,total=13.7,output=13.7)
@@ -39,7 +40,16 @@ a[is.na(a)] <- 0
 merge <- cbind(merge[1:16],a)
 
 # 발생-처리 ####
-merge <- mutate(merge, 고상.합계.차이=고상.분뇨-젖소.처리-한육우.처리)
+merge <- mutate(merge, 고상.처리=젖소.처리+한육우.처리)
+merge <- mutate(merge, 고상.합계.차이=고상.분뇨-고상.처리)
 merge <- mutate(merge, 합계.차이=합계.분뇨-합계.처리)
+
+# 경지면적 ####
+farmland <- readxl::read_excel("farmland.xlsx")
+write.csv(farmland,"farmland.txt",row.names=FALSE)
+farmland <- read.csv("farmland.txt")
+# farmland$시군구 <- gsub(" ","",farmland$시군구)
+farmland$시군구 <- trimws(farmland$시군구,which = "both")
+str(farmland)
 
 write.csv(merge,"merge.txt",row.names=FALSE)
