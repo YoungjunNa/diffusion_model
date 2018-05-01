@@ -1,4 +1,4 @@
-pacman::p_load("dplyr","kormaps2014")
+pacman::p_load("dplyr","kormaps2014","reshape2")
 
 # 가축분뇨 배출원단위(kg/두/일)
 hanwoo <- data.frame(bw=350,feces=8,urine=5.7,total=13.7,output=13.7)
@@ -11,8 +11,10 @@ manure_out <- list(hanwoo=hanwoo,holstein=holstein,swine=swine,layer=layer,broil
 
 # 시군기준
 animal <- read.csv("animal-2016.txt",stringsAsFactors = FALSE)
-ruminant <- filter(animal, 축종명=="한우"|축종명=="젖소"|축종명=="육우")
+animal <- dcast(animal, 시군~축종명, value.var="규모",sum)
+animal <- animal[c("시군","한우","육우","젖소","산란계","육계","돼지")]
 
+# ruminant <- filter(animal, 축종명=="한우"|축종명=="젖소"|축종명=="육우")
 # compare <- ruminant %>% group_by(시군,축종명) %>% summarise(output=sum(규모))
 # result <- group_by(ruminant,시군) %>% summarise(animal=sum(규모))
 # result <- group_by(animal, 시군) %>% summarise(animal=sum(규모))
